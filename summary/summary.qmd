@@ -1,0 +1,190 @@
+---
+title: "Summary"
+format: html
+editor: visual
+---
+
+Here I will summarise some of the work I have done after reading BA1999
+
+Consider a process where vertices ,$i$ with degree $k_i$, are added to a network at times $t_i \sim  U(0,t)$ such that the $k_i$ is asymptotically distributed with cumulative density function $F$ and probability density function $f$. Then if we write $(1-F)^{-1}(t_i/t) = k_i \sim F$, we can than differentiate to obtain that:
+
+$$
+\frac{dk_i}{dt} = \frac{1}{th(k_i)}
+$$ {#eq-dkdt1}
+
+where $h$ is the hazard function associated with $F$.
+
+Next, let us consider the "preferential" attachment model where at each time step:
+
+1.  A vertex is added to the network, bringing with it $m$ edges.
+
+2.  These edges are connected to existing vertices with probability defined by weights as functions of their degree $g(k_i)$.
+
+The process of adding edges is to be viewed as happening simultaneously as a realisation of a multinomial random variable. That is each existing vertex $i$ is expected to gain $\frac{mg(k_i)}{\sum_jg(k_j)}$ edges when the next vertex is added.
+
+Notice that this process has non-decreasing degrees of vertices, meaning that we can view the degree, $k_i$ , of vertex $i$ as a Hawkes process with intensity function $R_i(t)\sim Bin(m,\frac{g(k_i)}{\sum_jg(k_j)})$.
+
+A known result for Hawkes processes tells us that:
+
+$$
+k_i'(t) = E[R_i(t)]
+$$
+
+So we can write that:
+
+$$
+\frac{dk_i}{dt} = \frac{mg(k_i)}{\sum_jg(k_j)}
+$$ {#eq-dkdt2}
+
+Now, we have two different forms for the derivative of $k_i$ with respect to time (@eq-dkdt1 and @eq-dkdt2) .
+
+Putting these together we obtain an expression for the hazard function:
+
+$$
+h(k_i) = \frac{\sum_jg(k_j)}{mtg(k_i)} 
+$$
+
+Which isn't all too useful as it requires information about all other vertices in the network, we can make this easier to work with by finding a different form for $\sum_jg(k_j)$.
+
+$$
+\sum_jg(k_j) = N_t\sum_k p_t(k)g(k)
+$$ where $N_t$ is the number of vertices in the network at time $t$ and $p_t(k)$ is the proportion of vertices with degree $k$ at time $t$. This can be simplified further by the fact that $N_t = m_0+t$, where $m_0$ is the number of vertices in the network at $t=0$.
+
+$$
+\sum_j g(k_j) = (m_0 + t)\sum_k p_t(k)g(k) \rightarrow t\sum_kf(k)g(k)=tE_f[g(K)], \qquad\text{as } t \rightarrow \infty
+$$
+
+where $k_i$ is a realisation of $K\sim f$.
+
+This now gives us an approximate form for $h$
+
+$$
+h(k_i) = \frac{tE_f[g(K)]}{mtg(k_i)} = \frac{E_f[g(K)]}{mg(k_i)}
+$$
+
+If we treat $E_f[g(K)]$ as a constant $\lambda$, we obtain:
+
+$$
+h(k_i) = \frac{\lambda}{mg(k_i)}
+$$
+
+When we move to use this to get $f$ we can go down two paths, one assuming $k_i$ is continuous, and the other assuming $k_i$ is discrete.
+
+## Continuous
+
+Let
+
+$$
+I_g(k) = \int\frac{1}{g(k)}dk
+$$
+
+and
+
+$$
+H(k) = \int_m^k h(u)du
+$$
+
+Then we can obtain the survival function as:
+
+$$
+S(k) = \exp\{-H(k)\} = \exp\{-\frac{\lambda}{m}(I_g(k)-I_g(m))\}
+$$
+
+Differentiating we get that:
+
+$$
+f(k)  =-S'(k) = \frac{\lambda}{m}\exp\{\frac{\lambda}{m}I_g(m)\} \frac{\exp\{-\frac{\lambda}{m}I_g(k)\}
+}{g(k)}
+$$
+
+We can now return to $\lambda$, remember that $\lambda  = E_f[g(K)]$ that is:
+
+$$
+\lambda = \int_m^\infty f(k)g(k)dk = \int_m^\infty
+\frac{\lambda}{m}\exp\{\frac{\lambda}{m}I_g(m)\}\exp\{-\frac{\lambda}{m}I_g(k)\}dk
+$$
+
+$$1 =
+\frac{1}{m}\exp\{\frac{-\lambda}{m}I_g(m)\}\int_m^\infty\exp\{\frac{\lambda}{m}I_g(k)\}dk
+ $$ So we now get the final result:
+
+::: {.callout-note icon="false"}
+## Continuous Degree Distribution
+
+Let $\lambda^*$ be the solution, if it exists, to:
+
+$$
+1 =
+\frac{1}{m}\exp\{\frac{\lambda}{m}I_g(m)\}\int_m^\infty\exp\{-\frac{\lambda}{m}I_g(k)\}dk
+$$
+
+The the degrees of vertices in the network have probability density function:
+
+$$
+f(k) = \begin{cases}
+\frac{\lambda^*}{m}\exp\{\frac{\lambda^*}{m}I_g(m)\} \frac{\exp\{-\frac{\lambda^*}{m}I_g(k)\}
+}{g(k)}&,k\ge m\\
+0&,k<m
+\end{cases}
+$$
+:::
+
+## Discrete
+
+The formulas are slightly simpler if we assume $k_i$ has a discrete distribution as:
+
+$$
+f(k) = \begin{cases}
+h(k)\prod_{j=m}^{k-1}(1-h(j))&,k>m\\
+h(k)&,k=m\\
+0&,k<m
+\end{cases}
+$$
+
+$$
+f(k) = \begin{cases}
+\frac{\lambda}{mg(k)}
+\prod_{j=m}^{k-1}(1-
+\frac{\lambda}{mg(j)}
+)&,k>m\\
+\frac{\lambda}{mg(k)}
+&,k=m\\
+0&,k<m
+\end{cases}
+$$
+
+Again remembering that $\lambda = E_f[g(K)]$ we get that:$$
+\begin{align*}
+\lambda &= \sum_{k=m}^\infty g(k)f(k)\\
+&=\frac{\lambda}{m} + \sum_{k=m+1}^\infty\frac{\lambda}{m}\prod_{j=m}^{k-1}(1-\frac{\lambda}{mg(k(j))})\\
+m-1&=\sum_{k=m+1}^\infty\prod_{j=m}^{k-1}(1-\frac{\lambda}{mg(k(j))})
+\end{align*}
+$$
+
+So we get the results
+
+::: {.callout-note icon="false"}
+## Discrete Degree Distribution
+
+Let $\lambda^*$ be the solution, if it exists, to:
+
+$$
+m-1=\sum_{k=m+1}^\infty\prod_{j=m}^{k-1}(1-\frac{\lambda}{mg(k(j))})
+$$
+
+Then the degree of vertices in the network have probability mass function:
+
+$$
+f(k) = \begin{cases}
+\frac{\lambda^*}{mg(k)}
+\prod_{j=m}^{k-1}(1-
+\frac{\lambda^*}{mg(j)}
+)&,k = m+1, m+2, \ldots\\
+\frac{\lambda^*}{mg(k)}
+&,k=m\\
+0&,k = m-1, m-2, \ldots
+\end{cases}
+$$
+:::
+
+# Examples
